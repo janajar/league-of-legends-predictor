@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=640">
+
+    <link rel="stylesheet" href="/assets/css/style.css?v=ea162213b782a21e795393a0bde7cdc41b1e106c" media="screen">
+    <link rel="stylesheet" href="/assets/css/mobile.css" media="handheld, only screen and (max-device-width:640px)">
+    <link rel="stylesheet" href="/assets/css/non-screen.css" media="handheld, only screen and (max-device-width:640px)">
+
+    <script src="/assets/js/modernizr.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script src="/assets/js/headsmart.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $('#main_content').headsmart()
+      })
+    </script>
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>EECS 398 Project | league-of-legends-predictor</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="EECS 398 Project" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="http://localhost:4000/" />
+<meta property="og:url" content="http://localhost:4000/" />
+<meta property="og:site_name" content="league-of-legends-predictor" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="EECS 398 Project" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","headline":"EECS 398 Project","name":"league-of-legends-predictor","url":"http://localhost:4000/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+<!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body>
+    <a id="forkme_banner" href="https://github.com/janajar/league-of-legends-predictor">View on GitHub</a>
+    <div class="shell">
+
+      <header>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <h1>league-of-legends-predictor</h1>
+            <h2></h2>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+      </header>
+
+      
+        <div id="no-downloads">
+          <span class="inner">
+          </span>
+        </div>
+      
+
+
+      <span class="banner-fix"></span>
+
+
+      <section id="main_content">
+        <h1 id="eecs-398-project">EECS 398 Project</h1>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>Our dataset features 12,549 League of Legends games from tier one professional leagues in 2022. It provides a variety of statistics at both the team and individual level for each of these games. The dataset has 150,588 entries with 161 features which includes some match metadata.</p>
+
+<p>There are many different ways to win a match of League of Legends–but, how do the pros do it? As players ourselves, we are interested to see what aspects of a match matter the most. Is it the gold and experience, the towers and inhibitors, or something else?</p>
+
+<p>Using our intuition and experience as players, we selected the following columns to aid us in our analysis:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name of Column</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">golddiffatXX</code></td>
+      <td>The difference of gold between opposing teams or players at XX minutes (10, 15, and 20)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">xpdiffatXX</code></td>
+      <td>The difference of experience between opposing teams or players at XX minutes (10, 15, and 20)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">towers</code></td>
+      <td>The number of towers destroyed by a team</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">inhibitors</code></td>
+      <td>The number of inhibitors destroyed by a team</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">gamelength</code></td>
+      <td>The length of a game measured in seconds</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">side</code></td>
+      <td>Which side a person/team belongs to</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">gameid</code></td>
+      <td>Unique identifier for each game in the dataset</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">result</code></td>
+      <td>Whether the team/player won the game or not</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">earnedgold</code></td>
+      <td>The amount of gold earned for a team/player</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">champion</code></td>
+      <td>The champion that a player played</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">position</code></td>
+      <td>The role that a player took on</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">datacompleteness</code></td>
+      <td>Whether or not data collection for a game is complete</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="data-cleaning-and-exploratory-data-analysis">Data Cleaning and Exploratory Data Analysis</h2>
+
+<p>We took 5 distinct steps in our data cleaning process:</p>
+
+<h3 id="1-filtering-for-complete-data">1. Filtering for Complete Data</h3>
+<p>We filtered the dataframe on the <code class="language-plaintext highlighter-rouge">datacompleteness</code> column to remove remakes or corrupted matches. This ensures only fully recorded games are used in our analysis.</p>
+
+<h3 id="2-dropping-unnecessary-metadata-columns">2. Dropping Unnecessary Metadata Columns</h3>
+<p>We removed irrelevant metadata such as <code class="language-plaintext highlighter-rouge">participantid</code>, <code class="language-plaintext highlighter-rouge">playerid</code>, and <code class="language-plaintext highlighter-rouge">url</code>, which don’t help us analyze outcomes or performance.</p>
+
+<h3 id="3-separating-team-and-player-statistics">3. Separating Team and Player Statistics</h3>
+<p>We split team and player data using the <code class="language-plaintext highlighter-rouge">position</code> column. This allowed us to analyze team and individual performance separately.</p>
+
+<h3 id="4-dropping-columns-with-all-nan-values">4. Dropping Columns with All NaN Values</h3>
+<p>Columns that are completely <code class="language-plaintext highlighter-rouge">NaN</code> were removed, as they are either exclusive to team or player views and not helpful in the current frame.</p>
+
+<h3 id="5-creating-derived-features-for-team-advantage">5. Creating Derived Features for Team Advantage</h3>
+<p>We engineered difference columns (e.g., <code class="language-plaintext highlighter-rouge">tower_diff = towers - opp_towers</code>) to directly capture who had the advantage in key objectives.</p>
+
+<hr />
+
+<h2 id="univariate-analysis">Univariate Analysis</h2>
+
+<p><img src="path/to/your/golddiff_plot.png" alt="Gold Diff Distribution Plot" /></p>
+
+<p>The plot above displays the distribution of the gold difference between teams, for teams that won their respective matches, at 20 minutes. We observe a peak in the distribution at 2000–4000 gold, which means that the majority of teams that won their games had at least 2000 more gold than the other team at the 20-minute mark.</p>
+
+<hr />
+
+<h2 id="bivariate-analysis">Bivariate Analysis</h2>
+
+<p><img src="path/to/your/xpdiff_plot.png" alt="Game Length vs XP Diff Plot" /></p>
+
+<p>The plot above displays the relationship between game length and average XP difference by role in winning games. Irrespective of what position is played, the majority of winning teams hold a positive XP lead for the entire game. In the context of our analysis, this could indicate that gaining and maintaining an XP advantage, no matter how small, is critical to securing a win.</p>
+
+<hr />
+
+<h2 id="interesting-aggregates">Interesting Aggregates</h2>
+
+<p><img src="path/to/your/pivot_table.png" alt="Pivot Table Champion Win Rates" /></p>
+
+<p>The pivot table above displays the win rate for each champion in each respective role, based on the games in the dataset available. The values displayed in the table are the proportion of games won to total games played on that champion for that specific role. NA values represent that the champion has not been played in a specific role.</p>
+
+<hr />
+
+<h2 id="imputation">Imputation</h2>
+
+<p>Taking into account the context of our dataset and our target question, we have opted <strong>not to impute any data</strong>. Matches in League of Legends can swing on a dime — what this means is that when we impute data we are almost always going to introduce noise and assumptions that could distort the actual story of the match.</p>
+
+<hr />
+
+<h2 id="framing-the-decision-problem">Framing the Decision Problem</h2>
+
+<p><strong>Can we accurately predict the outcome of a League of Legends game using only data available up to the 20-minute mark?</strong></p>
+
+<p>Our problem is a <strong>binary classification task</strong> that aims to predict the <code class="language-plaintext highlighter-rouge">result</code> column of the dataset. We chose this approach to explore whether in-game statistics available by the 20-minute mark provide enough information to make accurate win/loss predictions.</p>
+
+<p>We use the <strong>F1-score</strong> as our evaluation metric because it offers a single value that balances both precision and recall. Unlike accuracy, which can be misleading when the classes are imbalanced, the F1-score gives us a more complete picture of model performance. This makes it especially useful now and in future iterations where we may experiment with imbalanced datasets to improve and evaluate performance.</p>
+
+<hr />
+
+<h2 id="baseline-model">Baseline Model</h2>
+
+<p>The baseline model utilizes 6 variables:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">golddiffat20</code></li>
+  <li><code class="language-plaintext highlighter-rouge">xpdiffat20</code></li>
+  <li><code class="language-plaintext highlighter-rouge">csdiffat20</code></li>
+  <li><code class="language-plaintext highlighter-rouge">killsat20</code></li>
+  <li><code class="language-plaintext highlighter-rouge">assistsat20</code></li>
+  <li><code class="language-plaintext highlighter-rouge">deathsat20</code></li>
+</ul>
+
+<p>These features are all <strong>quantitative</strong>, so no special encoding or transformations were required. There are <strong>no ordinal or nominal features</strong> in this version of the model.</p>
+
+<p>Our baseline model achieved an <strong>F1-score of 0.79</strong> for both classes (win/loss), which indicates that the model is performing significantly better than random guessing. However, we believe there is room for improvement by incorporating more nuanced features and potentially engineered features.</p>
+
+<hr />
+
+      </section>
+
+      <footer>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            
+              <p>this project by <a href="https://github.com/janajar">janajar</a> can be found on <a href="https://github.com/janajar/league-of-legends-predictor">GitHub</a></p>
+            
+            
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+        <p>Generated with <a href="https://pages.github.com">GitHub Pages</a> using Merlot</p>
+        <span class="octocat"></span>
+      </footer>
+
+    </div>
+  </body>
+</html>
