@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=640">
 
-    <link rel="stylesheet" href="/assets/css/style.css?v=ea162213b782a21e795393a0bde7cdc41b1e106c" media="screen">
+    <link rel="stylesheet" href="/assets/css/style.css?v=bad34a2d93385f83c2a2e96d668117ef8932cbb6" media="screen">
     <link rel="stylesheet" href="/assets/css/mobile.css" media="handheld, only screen and (max-device-width:640px)">
     <link rel="stylesheet" href="/assets/css/non-screen.css" media="handheld, only screen and (max-device-width:640px)">
 
@@ -80,7 +80,9 @@
 
 <p>Our dataset features 12,549 League of Legends games from tier one professional leagues in 2022. It provides a variety of statistics at both the team and individual level for each of these games. The dataset has 150,588 entries with 161 features which includes some match metadata.</p>
 
-<p>There are many different ways to win a match of League of Legends–but, how do the pros do it? As players ourselves, we are interested to see what aspects of a match matter the most. Is it the gold and experience, the towers and inhibitors, or something else?</p>
+<h2 id="how-does-the-way-a-team-plays-affect-how-long-a-game-lasts">How does the way a team plays affect how long a game lasts?</h2>
+
+<p>As players ourselves, we’re curious whether certain strategies or playstyle (i.e aggressive early fighting, vision control, or objective focus) correlate with shorter or longer games. Do dominant teams close out quickly, or do games tend to go long regardless of early performance?</p>
 
 <p>Using our intuition and experience as players, we selected the following columns to aid us in our analysis:</p>
 
@@ -121,12 +123,8 @@
       <td>Unique identifier for each game in the dataset</td>
     </tr>
     <tr>
-      <td><code class="language-plaintext highlighter-rouge">result</code></td>
-      <td>Whether the team/player won the game or not</td>
-    </tr>
-    <tr>
-      <td><code class="language-plaintext highlighter-rouge">earnedgold</code></td>
-      <td>The amount of gold earned for a team/player</td>
+      <td><code class="language-plaintext highlighter-rouge">totalgold</code></td>
+      <td>The amount of gold collected for a team/player</td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">champion</code></td>
@@ -147,83 +145,203 @@
 
 <h2 id="data-cleaning-and-exploratory-data-analysis">Data Cleaning and Exploratory Data Analysis</h2>
 
-<p>We took 5 distinct steps in our data cleaning process:</p>
-
 <h3 id="1-filtering-for-complete-data">1. Filtering for Complete Data</h3>
-<p>We filtered the dataframe on the <code class="language-plaintext highlighter-rouge">datacompleteness</code> column to remove remakes or corrupted matches. This ensures only fully recorded games are used in our analysis.</p>
+
+<p>Since some game data is incomplete (remakes or other data collection errors), it is imperative that we exclude this data from our analysis. In order to exclude such data, we filtered the dataframe on the <code class="language-plaintext highlighter-rouge">datacompleteness</code> column. As a result, we can ensure that only fully recorded games are included in our analysis and ensure the integrity of our dataset.</p>
 
 <h3 id="2-dropping-unnecessary-metadata-columns">2. Dropping Unnecessary Metadata Columns</h3>
-<p>We removed irrelevant metadata such as <code class="language-plaintext highlighter-rouge">participantid</code>, <code class="language-plaintext highlighter-rouge">playerid</code>, and <code class="language-plaintext highlighter-rouge">url</code>, which don’t help us analyze outcomes or performance.</p>
+
+<p>From observation, some data was clearly irrelevant to our analysis. We opted to drop metadata columns such as <code class="language-plaintext highlighter-rouge">participantid</code>, <code class="language-plaintext highlighter-rouge">playerid</code>, and <code class="language-plaintext highlighter-rouge">url</code> as they do not contribute to understanding game outcomes or player/team performance. Dropping these columns reduces the dimensionality of our dataset and allows us to direct our attention to more meaningful features.</p>
 
 <h3 id="3-separating-team-and-player-statistics">3. Separating Team and Player Statistics</h3>
-<p>We split team and player data using the <code class="language-plaintext highlighter-rouge">position</code> column. This allowed us to analyze team and individual performance separately.</p>
+
+<p>This data included both team and player stats which is identified by the <code class="language-plaintext highlighter-rouge">position</code> column. Separating them makes interacting with the data easier since we can use the correct data frame depending on the context. This separation enables a more focused analysis on team or individual stats and their respective impact.</p>
 
 <h3 id="4-dropping-columns-with-all-nan-values">4. Dropping Columns with All NaN Values</h3>
-<p>Columns that are completely <code class="language-plaintext highlighter-rouge">NaN</code> were removed, as they are either exclusive to team or player views and not helpful in the current frame.</p>
 
-<h3 id="5-creating-derived-features-for-team-advantage">5. Creating Derived Features for Team Advantage</h3>
-<p>We engineered difference columns (e.g., <code class="language-plaintext highlighter-rouge">tower_diff = towers - opp_towers</code>) to directly capture who had the advantage in key objectives.</p>
+<p>Some columns are completely NaN since they are either a purely individual stat or team stat. Therefore, we drop the columns that are all NaN for each respective dataframe. Removing these columns cleans up the dataset and ensures that only relevant features are retained. This step reduces clutter and improves the interpretability of the data.</p>
+
+<h3 id="5-creating-derived-features">5. Creating Derived Features</h3>
+
+<p>The raw dataset contains separate columns for a team’s towers/inhibitors and their opponent’s towers/inhibitors. By calculating the difference between them, we can get a clear image on who has the advantage in the game. Alongside this, we will create another column for game length in minutes (instead of seconds). These features simplify the analysis by directly quantifying the team’s advantage in these objectives and make game length more clear. This makes it easier to analyze their impact in the matches.</p>
 
 <hr />
 
 <h2 id="univariate-analysis">Univariate Analysis</h2>
 
-<p><img src="path/to/your/golddiff_plot.png" alt="Gold Diff Distribution Plot" /></p>
+<p><img src="/assets/univariate.png" alt="Univariate Graph" /></p>
 
-<p>The plot above displays the distribution of the gold difference between teams, for teams that won their respective matches, at 20 minutes. We observe a peak in the distribution at 2000–4000 gold, which means that the majority of teams that won their games had at least 2000 more gold than the other team at the 20-minute mark.</p>
+<p>The plot above displays the distribution of the game lengths. This distribution is slightly right-skewed with most games taking between 25–35 minutes. In respect to our original question, this tells us that game lengths follow trends; it is not completely random and dependent on the teams playing.</p>
 
 <hr />
 
 <h2 id="bivariate-analysis">Bivariate Analysis</h2>
 
-<p><img src="path/to/your/xpdiff_plot.png" alt="Game Length vs XP Diff Plot" /></p>
+<p><img src="/assets/bivariate.png" alt="Bivariate Graph" /></p>
 
-<p>The plot above displays the relationship between game length and average XP difference by role in winning games. Irrespective of what position is played, the majority of winning teams hold a positive XP lead for the entire game. In the context of our analysis, this could indicate that gaining and maintaining an XP advantage, no matter how small, is critical to securing a win.</p>
+<p>The plot above displays the relationship between total gold and game length. There is a clear positive correlation, indicating that as total gold increases, so does the duration of the game. In the context of our question, this suggests that total gold is a strong indicator of game length and could serve as a valuable feature.</p>
 
 <hr />
 
 <h2 id="interesting-aggregates">Interesting Aggregates</h2>
 
-<p><img src="path/to/your/pivot_table.png" alt="Pivot Table Champion Win Rates" /></p>
+<p>The pivot table above summarized the average game length (in minutes) based on champion and position in our dataset. Each row corresponds to a unique champion, and each column under position shows the mean game length for that champion when played in that specific role. NaN values indicate that the champion was not played in that role.</p>
 
-<p>The pivot table above displays the win rate for each champion in each respective role, based on the games in the dataset available. The values displayed in the table are the proportion of games won to total games played on that champion for that specific role. NA values represent that the champion has not been played in a specific role.</p>
+<table>
+  <thead>
+    <tr>
+      <th>Champion</th>
+      <th>Bot</th>
+      <th>Jng</th>
+      <th>Mid</th>
+      <th>Sup</th>
+      <th>Top</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Aatrox</td>
+      <td>25.02</td>
+      <td>NaN</td>
+      <td>30.30</td>
+      <td>NaN</td>
+      <td>31.18</td>
+    </tr>
+    <tr>
+      <td>Ahri</td>
+      <td>26.73</td>
+      <td>23.95</td>
+      <td>31.99</td>
+      <td>NaN</td>
+      <td>28.10</td>
+    </tr>
+    <tr>
+      <td>Akali</td>
+      <td>26.17</td>
+      <td>NaN</td>
+      <td>31.27</td>
+      <td>NaN</td>
+      <td>32.90</td>
+    </tr>
+    <tr>
+      <td>Akshan</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>31.04</td>
+      <td>NaN</td>
+      <td>32.02</td>
+    </tr>
+    <tr>
+      <td>Alistar</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>31.78</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>Zeri</td>
+      <td>32.03</td>
+      <td>34.16</td>
+      <td>31.76</td>
+      <td>NaN</td>
+      <td>32.11</td>
+    </tr>
+    <tr>
+      <td>Ziggs</td>
+      <td>31.28</td>
+      <td>NaN</td>
+      <td>31.32</td>
+      <td>32.67</td>
+      <td>31.75</td>
+    </tr>
+    <tr>
+      <td>Zilean</td>
+      <td>28.52</td>
+      <td>NaN</td>
+      <td>30.94</td>
+      <td>32.27</td>
+      <td>31.41</td>
+    </tr>
+    <tr>
+      <td>Zoe</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>32.02</td>
+      <td>33.70</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>Zyra</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>32.64</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
 
 <hr />
 
 <h2 id="imputation">Imputation</h2>
 
-<p>Taking into account the context of our dataset and our target question, we have opted <strong>not to impute any data</strong>. Matches in League of Legends can swing on a dime — what this means is that when we impute data we are almost always going to introduce noise and assumptions that could distort the actual story of the match.</p>
+<p>Taking into account the context of our dataset and our target question, we have opted not to impute any data. Matches in League of Legends can swing on a dime — what this means is that when we impute data we are almost always going to inject assumptions that may not hold.</p>
 
 <hr />
 
 <h2 id="framing-the-decision-problem">Framing the Decision Problem</h2>
 
-<p><strong>Can we accurately predict the outcome of a League of Legends game using only data available up to the 20-minute mark?</strong></p>
+<h3 id="can-we-accurately-predict-the-length-of-a-league-of-legends-game-using-postgame-data">Can we accurately predict the length of a League of Legends game using postgame data?</h3>
 
-<p>Our problem is a <strong>binary classification task</strong> that aims to predict the <code class="language-plaintext highlighter-rouge">result</code> column of the dataset. We chose this approach to explore whether in-game statistics available by the 20-minute mark provide enough information to make accurate win/loss predictions.</p>
+<p>Our problem is a regression task that aims to predict the <code class="language-plaintext highlighter-rouge">gamelength</code> column of the dataset. We chose this approach to explore whether postgame statistics contain enough information to estimate how long a match lasted.</p>
 
-<p>We use the <strong>F1-score</strong> as our evaluation metric because it offers a single value that balances both precision and recall. Unlike accuracy, which can be misleading when the classes are imbalanced, the F1-score gives us a more complete picture of model performance. This makes it especially useful now and in future iterations where we may experiment with imbalanced datasets to improve and evaluate performance.</p>
+<p>We use <strong>Mean Squared Error (MSE)</strong> as our evaluation metric because it provides a clear and interpretable measure of how far our model’s predictions are from the actual game lengths. Unlike other metrics like R², which only tells us how much variance is explained by the model, MSE quantifies the prediction errors in a real-world applicable way. This makes it especially useful when we care not just about relative model performance, but also about how far off in seconds the predicted game lengths actually are.</p>
 
 <hr />
 
 <h2 id="baseline-model">Baseline Model</h2>
 
-<p>The baseline model utilizes 6 variables:</p>
+<p>The baseline model utilizes 17 variables which are:</p>
 
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">golddiffat20</code></li>
-  <li><code class="language-plaintext highlighter-rouge">xpdiffat20</code></li>
-  <li><code class="language-plaintext highlighter-rouge">csdiffat20</code></li>
-  <li><code class="language-plaintext highlighter-rouge">killsat20</code></li>
-  <li><code class="language-plaintext highlighter-rouge">assistsat20</code></li>
-  <li><code class="language-plaintext highlighter-rouge">deathsat20</code></li>
+  <li><code class="language-plaintext highlighter-rouge">totalgold</code>, <code class="language-plaintext highlighter-rouge">earnedgold</code>, <code class="language-plaintext highlighter-rouge">goldspent</code>, <code class="language-plaintext highlighter-rouge">earned gpm</code></li>
+  <li><code class="language-plaintext highlighter-rouge">deaths</code>, <code class="language-plaintext highlighter-rouge">teamkills</code>, <code class="language-plaintext highlighter-rouge">damagetochampions</code>, <code class="language-plaintext highlighter-rouge">dpm</code></li>
+  <li><code class="language-plaintext highlighter-rouge">minionkills</code>, <code class="language-plaintext highlighter-rouge">monsterkills</code>, <code class="language-plaintext highlighter-rouge">cspm</code></li>
+  <li><code class="language-plaintext highlighter-rouge">visionscore</code>, <code class="language-plaintext highlighter-rouge">vspm</code>, <code class="language-plaintext highlighter-rouge">wardsplaced</code>, <code class="language-plaintext highlighter-rouge">wpm</code></li>
+  <li><code class="language-plaintext highlighter-rouge">team kpm</code>, <code class="language-plaintext highlighter-rouge">ckpm</code></li>
 </ul>
 
-<p>These features are all <strong>quantitative</strong>, so no special encoding or transformations were required. There are <strong>no ordinal or nominal features</strong> in this version of the model.</p>
+<p>These features are all quantitative, so no special encoding or transformations were required. There are no ordinal or nominal features in this version of the model.</p>
 
-<p>Our baseline model achieved an <strong>F1-score of 0.79</strong> for both classes (win/loss), which indicates that the model is performing significantly better than random guessing. However, we believe there is room for improvement by incorporating more nuanced features and potentially engineered features.</p>
+<p>Our baseline model achieved a <strong>MSE of 295.97</strong> while utilizing the <strong>Random Forest Regressor</strong>. This indicates that the model is performing reasonably well, with predictions typically being off from the true game length by a decent amount. While the error is not negligible, it suggests that the model is capturing meaningful patterns in the postgame data. The fact that it is able to do this suggests that we can improve performance if we use more robust techniques.</p>
 
 <hr />
+
+<h2 id="final-model">Final Model</h2>
+
+<p>For the final model, we opted to change how six highly skewed features were represented. The features <code class="language-plaintext highlighter-rouge">team kpm</code>, <code class="language-plaintext highlighter-rouge">ckpm</code>, <code class="language-plaintext highlighter-rouge">deaths</code>, <code class="language-plaintext highlighter-rouge">earned gpm</code>, <code class="language-plaintext highlighter-rouge">damagetochampions</code>, and <code class="language-plaintext highlighter-rouge">teamkills</code> all have heavy right-tail or left-tail behavior because games that are not close (i.e., one team is dominating) generate extremely different data than slower, more balanced games.</p>
+
+<p>We changed these features by passing them through a <strong>QuantileTransformer</strong> that maps their quantiles onto a normal distribution (monotonically). This makes the linear model’s assumptions more valid.</p>
+
+<p>Then, we applied a <strong>StandardScaler</strong> to the entire feature matrix in order to give all the features a common numerical scale. This is important because we used a <strong>Lasso model</strong>. The Lasso model is linear regression with an L1 penalty applied; therefore, if we did not normalize all of these values, large-magnitude columns would be subject to less penalization.</p>
+
+<p>As mentioned earlier, our final model used Lasso, which is a linear regression model that utilizes L1 regularization. We chose Lasso because it is able to perform feature selection by shrinking the less relevant feature’s coefficients to 0. This is particularly useful in our scenario because of the number of overlapping/correlated features in the dataset.</p>
+
+<h3 id="the-hyperparameters-that-ended-up-performing-the-best-were">The hyperparameters that ended up performing the best were:</h3>
+
+<ul>
+  <li>Alpha: <code class="language-plaintext highlighter-rouge">0.0026</code></li>
+  <li>Fit intercept: <code class="language-plaintext highlighter-rouge">True</code></li>
+  <li>Maximum iterations: <code class="language-plaintext highlighter-rouge">10,000</code></li>
+  <li>Positive coefficients: <code class="language-plaintext highlighter-rouge">False</code></li>
+  <li>Selection method: <code class="language-plaintext highlighter-rouge">Cyclic</code></li>
+  <li>Tolerance: <code class="language-plaintext highlighter-rouge">1e-05</code></li>
+</ul>
+
+<p>In order to find these best-performing hyperparameters, we searched for them using <strong>GridSearchCV</strong>. We used five-fold cross-validation with negative MSE as our scoring metric.</p>
+
+<p>Overall, our final model outperformed our baseline model by reducing the mean squared error from <strong>295.97 seconds to 0.0557 seconds</strong>. This performance increase is a reflection of the benefits of quantile-based transformation on our skewed features and the L1 regularization’s ability to reduce the amount of redundant features. In addition to the increased predictive performance, our final model also offered greater interpretability by highlighting two prominent features: <code class="language-plaintext highlighter-rouge">deaths</code> and <code class="language-plaintext highlighter-rouge">earned gpm</code>.</p>
 
       </section>
 
